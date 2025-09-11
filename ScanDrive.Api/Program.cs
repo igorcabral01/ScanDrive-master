@@ -197,10 +197,10 @@ namespace ScanDrive.Api
                     policy =>
                     {
                         policy
-                            .WithOrigins(corsSettings?.AllowedOrigins ?? Array.Empty<string>())
+                            .AllowAnyOrigin()
                             .AllowAnyMethod()
-                            .AllowAnyHeader()
-                            .AllowCredentials();
+                            .AllowAnyHeader();
+                        // .AllowCredentials() não pode ser usado com AllowAnyOrigin
                     });
             });
 
