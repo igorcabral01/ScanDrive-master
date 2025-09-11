@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080;https://+:8081
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__DefaultConnection=Host=scandrivedba.c9emc62cgw4d.us-east-2.rds.amazonaws.com;Port=5432;Database=scandrive;Username=postgres;Password=8kL8bsi9RY7ogl5U
+    volumes:
+      - ./ScanDrive.Api:/app
+      - ~/.nuget/packages:/root/.nuget/packages:ro
+    networks:
+      - scandrive-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/monitoring/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  scandrive-network:

@@ -1,0 +1,6 @@
+@ScanDrive.Api_HostAddress = http://localhost:5151
+
+GET {{ScanDrive.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

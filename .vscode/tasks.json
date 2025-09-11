@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Executar ScanDrive.Api",
+			"type": "shell",
+			"command": "dotnet run --project ScanDrive.Api/ScanDrive.Api.csproj",
+			"problemMatcher": [
+				"$msCompile"
+			],
+			"group": "build"
+		}
+	]
+}
