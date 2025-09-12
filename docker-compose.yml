@@ -13,10 +13,7 @@ services:
       - ASPNETCORE_URLS=http://+:8080;https://+:8081
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=scandrive;User=root;Password=scandrive123;
-    depends_on:
-      db:
-        condition: service_healthy
+      - ConnectionStrings__DefaultConnection=Host=scandrivedba.c9emc62cgw4d.us-east-2.rds.amazonaws.com;Port=5432;Database=postgres;Username=postgres;Password=8kL8bsi9RY7ogl5U
     networks:
       - scandrive-network
     healthcheck:
@@ -34,35 +31,17 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  db:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=scandrive123
-      - MYSQL_DATABASE=scandrive
+  nginx:
+    image: nginx:latest
     ports:
-      - "3306:3306"
+      - "80:80"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - api
     networks:
       - scandrive-network
-    healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-pscandrive123", "-e", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
 
 networks:
   scandrive-network:
     driver: bridge
-
-volumes:
-  mysql_data: 
