@@ -1,0 +1,44 @@
+Passo a passo completo
+1. Apagar container Docker e pasta do projeto antiga
+# Remover container (caso esteja rodando)
+docker rm -f scandrive-master-api-1
+
+# Confirmar se há containers do projeto
+docker ps -a | grep scandrive
+
+# Remover todos containers do projeto (se houver)
+docker rm -f <CONTAINER_ID>
+
+# Apagar pasta do projeto
+rm -rf ~/ScanDrive-master
+
+2. Clonar repositório novamente
+git clone https://github.com/igorcabral01/ScanDrive-master.git ~/ScanDrive-master
+cd ~/ScanDrive-master
+
+3. Criar pasta e gerar certificado SSL na pasta correta
+mkdir -p ScanDrive.Api/certs
+cd ScanDrive.Api/certs
+
+# Gerar chave e certificado auto-assinado
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout aspnetcore-devcert.key -out aspnetcore-devcert.crt -subj "/CN=localhost"
+
+# Converter para formato .pfx com senha 1234
+openssl pkcs12 -export -out aspnetcore-devcert.pfx -inkey aspnetcore-devcert.key -in aspnetcore-devcert.crt -passout pass:1234
+
+cd ../../
+
+4. Converter e dar permissão ao entrypoint.sh
+cd ScanDrive.Api
+
+# Converter para formato Unix (evita erros no container)
+dos2unix entrypoint.sh
+
+# Dar permissão de execução
+chmod +x entrypoint.sh
+
+cd ..
+
+5. Buildar e subir o container Docker
+docker-compose build --no-cache
+docker-compose up

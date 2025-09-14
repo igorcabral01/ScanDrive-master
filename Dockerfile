@@ -28,8 +28,7 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-# Copia o certificado self-signed para dentro do container
-COPY ScanDrive.Api/certs/aspnetcore-devcert.pfx /app/aspnetcore-devcert.pfx
+COPY ScanDrive.Api/aspnetcore-devcert.pfx /app/aspnetcore-devcert.pfx
 
 # Copia o entrypoint e dá permissão de execução
 COPY ScanDrive.Api/entrypoint.sh /app/entrypoint.sh
