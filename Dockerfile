@@ -26,12 +26,5 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS api
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-RUN apt-get update && \
-    apt-get install -y curl && \
-    rm -rf /var/lib/apt/lists/*
-
-COPY ScanDrive.Api/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
-EXPOSE 8080
-EXPOSE 8081
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Copia o certificado self-signed para dentro do container
+COPY ScanDrive.Api/certs/aspnetcore-devcert.pfx /app/as
