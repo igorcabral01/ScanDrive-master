@@ -24,7 +24,16 @@ RUN dotnet publish "ScanDrive.Api.csproj" -c Release -o /app/publish /p:UseAppHo
 # Imagem final da API
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS api
 WORKDIR /app
+
+# Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
 # Copia o certificado self-signed para dentro do container
-COPY ScanDrive.Api/certs/aspnetcore-devcert.pfx /app/as
+COPY ScanDrive.Api/certs/aspnetcore-devcert.pfx /app/aspnetcore-devcert.pfx
+
+# Copia o entrypoint e dá permissão de execução
+COPY ScanDrive.Api/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Define o entrypoint
+ENTRYPOINT ["/app/entrypoint.sh"]

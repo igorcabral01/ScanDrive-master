@@ -1,8 +1,10 @@
-# Copia o entrypoint
-COPY entrypoint.sh .
+#!/bin/bash
 
-# Dá permissão de execução
-RUN chmod +x ./entrypoint.sh
+echo "Waiting for database..."
+sleep 10
 
-# Usa o script como entrypoint
-ENTRYPOINT ["./entrypoint.sh"]
+echo "Running migrations..."
+dotnet ef database update
+
+echo "Starting application..."
+dotnet ScanDrive.Api.dll
