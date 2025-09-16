@@ -1,20 +1,33 @@
 version: '3.8'
 
 services:
-  api:
-    image: ${DOCKER_USERNAME}/scandrive:${VERSION:-latest}
+  # Nginx Reverse Proxy para HTTPS
+  nginx:
+    image: nginx:alpine
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl  # Certificados SSL
+    depends_on:
+      - api
+    networks:
+      - scandrive-network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Remove exposição externa das portas (só o nginx vai acessar)
+    expose:
+      - "80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:80;https://+:443
-      - ASPNETCORE_HTTPS_PORT=443
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/ssl/cert.pfx
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=${SSL_CERT_PASSWORD:-}
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=scandrive;User=root;Password=${DB_PASSWORD:-scandrive123};
-    volumes:
-      - ./ssl:/app/ssl  # Monta certificados SSL
     depends_on:
       db:
         condition: service_healthy
@@ -74,4 +87,4 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data: 
+  mysql_data:
