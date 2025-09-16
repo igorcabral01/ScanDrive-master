@@ -8,6 +8,27 @@
 • Usuário: ubuntu
 • Região: us-east-2
 
+🌐 PORTAS DISPONÍVEIS
+--------------------
+• 80 (HTTP) - Nginx (redireciona para HTTPS)
+• 443 (HTTPS) - Nginx com SSL
+• 5432 (PostgreSQL) - Banco de dados local (container)
+• 22 (SSH) - Acesso remoto
+
+🚪 MAPEAMENTO DE PORTAS
+----------------------
+• Host:80 → Nginx:80 (HTTP)
+• Host:443 → Nginx:443 (HTTPS)
+• Host:5432 → PostgreSQL:5432 (Database)
+• API interna: Porta 80 (não exposta externamente)
+
+🔒 PORTAS DE SEGURANÇA
+---------------------
+• SSH (22) - Apenas para administração
+• HTTP (80) - Redireciona para HTTPS
+• HTTPS (443) - Acesso principal da aplicação
+• PostgreSQL (5432) - Apenas para desenvolvimento/debug
+
 🔑 CONECTAR NA EC2
 ------------------
 ssh -i "pass.pem" ubuntu@ec2-3-16-151-20.us-east-2.compute.amazonaws.com
@@ -87,6 +108,39 @@ curl -k https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com/api/monitoring/h
 • API: ASP.NET Core 8.0
 • Certificados: Self-signed SSL
 
+🔐 INSTALAÇÃO DOS CERTIFICADOS SSL
+----------------------------------
+# Como criamos os certificados self-signed:
+
+# 1. Criar diretório para certificados
+mkdir -p ssl
+
+# 2. Gerar certificado self-signed
+openssl req -x509 -newkey rsa:2048 -keyout ssl/key.pem -out ssl/cert.pem -days 365 -nodes \
+  -subj "/C=BR/ST=Estado/L=Cidade/O=ScanDrive/CN=ec2-3-16-151-20.us-east-2.compute.amazonaws.com"
+
+# 3. Verificar se os certificados foram criados
+ls -la ssl/
+
+# 4. Configurar permissões
+chmod 600 ssl/key.pem
+chmod 644 ssl/cert.pem
+
+# NOTA: Let's Encrypt não funciona com domínios .amazonaws.com
+# Por isso usamos certificados self-signed para testes
+
+🔄 RENOVAR CERTIFICADOS (se necessário)
+---------------------------------------
+# Remover certificados antigos
+rm -f ssl/cert.pem ssl/key.pem
+
+# Gerar novos certificados
+openssl req -x509 -newkey rsa:2048 -keyout ssl/key.pem -out ssl/cert.pem -days 365 -nodes \
+  -subj "/C=BR/ST=Estado/L=Cidade/O=ScanDrive/CN=ec2-3-16-151-20.us-east-2.compute.amazonaws.com"
+
+# Reiniciar nginx
+docker-compose -f docker-compose.https.yml restart nginx
+
 🔧 COMANDOS ÚTEIS
 -----------------
 # Status detalhado
@@ -103,6 +157,12 @@ docker system prune -f
 
 # Ver configuração do docker-compose
 docker-compose -f docker-compose.https.yml config
+
+# Verificar portas em uso
+sudo netstat -tlnp | grep -E ":80|:443|:5432|:22"
+
+# Ver quais portas estão ocupadas
+sudo lsof -i -P -n | grep LISTEN
 
 🚨 RESOLUÇÃO DE PROBLEMAS COMUNS
 --------------------------------
