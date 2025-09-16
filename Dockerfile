@@ -28,11 +28,11 @@ WORKDIR /app
 # Copia a aplicação publicada
 COPY --from=publish /app/publish .
 
-COPY ScanDrive.Api/aspnetcore-devcert.pfx /app/aspnetcore-devcert.pfx
+# Expõe apenas a porta HTTP por enquanto
+EXPOSE 80
 
-# Copia o entrypoint e dá permissão de execução
-COPY ScanDrive.Api/entrypoint.sh /app/entrypoint.sh
-RUN chmod +x /app/entrypoint.sh
+# Configura para rodar apenas HTTP (HTTPS pode ser adicionado depois)
+ENV ASPNETCORE_URLS=http://+:80
 
-# Define o entrypoint
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Executa a aplicação diretamente
+ENTRYPOINT ["dotnet", "ScanDrive.Api.dll"]

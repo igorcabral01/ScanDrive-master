@@ -4,13 +4,13 @@ services:
   api:
     image: ${DOCKER_USERNAME}/scandrive:${VERSION:-latest}
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "80:80"
+      - "443:443"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ASPNETCORE_URLS=http://+:8080;https://+:8081
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=http://+:80;https://+:443
+      - ASPNETCORE_HTTP_PORTS=80
+      - ASPNETCORE_HTTPS_PORTS=443
       - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=scandrive;User=root;Password=${DB_PASSWORD:-scandrive123};
     depends_on:
       db:
@@ -18,7 +18,7 @@ services:
     networks:
       - scandrive-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/monitoring/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/api/monitoring/health"]
       interval: 30s
       timeout: 10s
       retries: 3
