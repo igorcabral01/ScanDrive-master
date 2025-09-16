@@ -27,7 +27,6 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
-      - ConnectionStrings__DefaultConnection=Server=db;Port=3306;Database=scandrive;User=root;Password=${DB_PASSWORD:-scandrive123};
     depends_on:
       db:
         condition: service_healthy
@@ -53,18 +52,19 @@ services:
         window: 120s
 
   db:
-    image: mysql:8.0
+    image: postgres:15-alpine
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-scandrive123}
-      - MYSQL_DATABASE=scandrive
+      - POSTGRES_DB=scandrive
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-scandrive123}
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - scandrive-network
     healthcheck:
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-scandrive123}", "-e", "SELECT 1"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d scandrive"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -87,4 +87,4 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data:
+  postgres_data:
