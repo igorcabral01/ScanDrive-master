@@ -1,0 +1,181 @@
+🚀 INSTRUÇÕES COMPLETAS EC2 - ScanDrive
+==========================================
+
+📋 INFORMAÇÕES DA INSTÂNCIA
+---------------------------
+• Domínio: ec2-3-16-151-20.us-east-2.compute.amazonaws.com
+• IP: 3.16.151.20
+• Usuário: ubuntu
+• Região: us-east-2
+
+🔑 CONECTAR NA EC2
+------------------
+ssh -i "pass.pem" ubuntu@ec2-3-16-151-20.us-east-2.compute.amazonaws.com
+
+📁 NAVEGAÇÃO BÁSICA
+-------------------
+# Ir para o diretório do projeto
+cd ~/ScanDrive-master
+
+# Verificar arquivos
+ls -la
+
+# Ver status atual
+docker ps
+
+🔄 ATUALIZAÇÃO RÁPIDA (COMANDO PRINCIPAL)
+-----------------------------------------
+# 1. Ir para o diretório
+cd ~/ScanDrive-master
+
+# 2. Atualizar código do GitHub
+git pull origin main
+
+# 3. Atualizar containers (COMANDO PRINCIPAL)
+docker-compose -f docker-compose.https.yml up --build -d --force-recreate
+
+# 4. Verificar status
+docker ps
+
+🆘 SOLUÇÃO DE PROBLEMAS
+-----------------------
+# Se der erro de divergência no git:
+git config pull.rebase false
+git pull origin main
+
+# Se precisar parar tudo:
+docker-compose -f docker-compose.https.yml down
+
+# Se quiser rebuild completo:
+docker-compose -f docker-compose.https.yml build --no-cache
+
+🔍 VERIFICAÇÃO DO SISTEMA
+-------------------------
+# Executar script de verificação
+bash check-system.sh
+
+# Ver logs em tempo real
+docker-compose -f docker-compose.https.yml logs -f
+
+# Ver logs específicos da API
+docker logs scandrive-master-api-1 --tail 50
+
+# Ver logs do nginx
+docker logs scandrive-master-nginx-1 --tail 20
+
+🌐 TESTES DE CONECTIVIDADE
+--------------------------
+# Testar API local
+curl -k https://localhost/api/monitoring/health
+
+# Testar swagger
+curl -k https://localhost/swagger/v1/swagger.json
+
+# Testar externamente
+curl -k https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com/api/monitoring/health
+
+📖 URLS PARA ACESSO
+-------------------
+• API: https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com
+• Swagger: https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com/swagger
+• Health: https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com/api/monitoring/health
+
+⚙️ CONFIGURAÇÃO ATUAL
+---------------------
+• Base de Dados: PostgreSQL (RDS AWS)
+• Proxy: Nginx com SSL
+• API: ASP.NET Core 8.0
+• Certificados: Self-signed SSL
+
+🔧 COMANDOS ÚTEIS
+-----------------
+# Status detalhado
+docker ps -a
+
+# Espaço em disco
+df -h
+
+# Uso de memória
+free -h
+
+# Limpar containers parados
+docker system prune -f
+
+# Ver configuração do docker-compose
+docker-compose -f docker-compose.https.yml config
+
+🚨 RESOLUÇÃO DE PROBLEMAS COMUNS
+--------------------------------
+
+❌ Problema: API unhealthy
+✅ Solução: 
+cd ~/ScanDrive-master
+git pull origin main
+docker-compose -f docker-compose.https.yml up --build -d --force-recreate
+
+❌ Problema: Swagger não carrega
+✅ Solução:
+docker logs scandrive-master-api-1 --tail 20
+curl -k https://localhost/swagger/v1/swagger.json
+
+❌ Problema: 502 Bad Gateway
+✅ Solução:
+docker logs scandrive-master-nginx-1 --tail 10
+docker-compose -f docker-compose.https.yml restart api
+
+❌ Problema: Porta ocupada
+✅ Solução:
+sudo lsof -i :80
+sudo lsof -i :443
+docker-compose -f docker-compose.https.yml down
+
+🔄 FLUXO COMPLETO DE ATUALIZAÇÃO
+--------------------------------
+1. cd ~/ScanDrive-master
+2. git pull origin main
+3. docker-compose -f docker-compose.https.yml down
+4. docker-compose -f docker-compose.https.yml up --build -d
+5. docker ps
+6. curl -k https://localhost/api/monitoring/health
+
+💾 BACKUP E RECUPERAÇÃO
+-----------------------
+# Backup volumes
+docker-compose -f docker-compose.https.yml down
+sudo cp -r /var/lib/docker/volumes/scandrive-master_postgres_data /backup/
+
+# Limpar tudo (CUIDADO!)
+docker system prune -a -f
+docker volume prune -f
+
+📚 ARQUIVOS IMPORTANTES
+----------------------
+• docker-compose.https.yml - Configuração principal
+• nginx.conf - Configuração do proxy
+• ssl/cert.pem e ssl/key.pem - Certificados SSL
+• check-system.sh - Script de verificação
+• DEPLOY-EC2-GUIDE.md - Guia completo
+
+🎯 SEQUÊNCIA PARA CORREÇÃO ATUAL
+--------------------------------
+1. cd ~/ScanDrive-master
+2. git pull origin main
+3. docker-compose -f docker-compose.https.yml up --build -d --force-recreate
+4. Aguardar 2-3 minutos para containers subirem
+5. docker ps (verificar se API está healthy)
+6. curl -k https://localhost/api/monitoring/health
+7. Acessar: https://ec2-3-16-151-20.us-east-2.compute.amazonaws.com/swagger
+
+🏁 RESULTADO ESPERADO
+--------------------
+• 3 containers rodando: nginx, api, db
+• API status: healthy
+• Health check: retorna JSON com status:healthy
+• Swagger: carrega a documentação da API
+• Nginx: proxy reverso funcionando com HTTPS
+
+===============================================
+📞 SUPORTE: Se algo não funcionar, execute:
+bash check-system.sh
+E compartilhe o resultado!
+===============================================
