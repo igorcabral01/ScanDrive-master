@@ -513,7 +513,6 @@ public class ChatController : BaseController
     /// <response code="401">Não autorizado</response>
     /// <response code="403">Usuário não tem permissão</response>
     [HttpGet("session/{sessionId}/messages")]
-    [Authorize(Policy = "Module.Chat:Permission.View")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]

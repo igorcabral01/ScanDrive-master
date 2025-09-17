@@ -403,7 +403,6 @@ public class VehiclesController : BaseController
     /// <returns>Lista de veículos em formato de lista</returns>
     /// <response code="200">Retorna a lista de veículos</response>
     /// <response code="401">Não autorizado</response>
-    [Authorize(Roles = $"{Roles.Admin},{Roles.ShopOwner},{Roles.ShopSeller}")]
     [HttpGet("list-items")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
