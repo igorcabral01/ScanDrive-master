@@ -197,11 +197,31 @@ namespace ScanDrive.Api
                     policy =>
                     {
                         policy
-                            .AllowAnyOrigin()
+                            .WithOrigins(
+                                "https://www.scandrive.com.br",
+                                "https://scandrive.com.br", 
+                                "http://localhost:3000",
+                                "http://localhost:4200",
+                                "http://localhost:5173"
+                            )
                             .AllowAnyMethod()
-                            .AllowAnyHeader();
-                        // .AllowCredentials() não pode ser usado com AllowAnyOrigin
+                            .AllowAnyHeader()
+                            .AllowCredentials();
                     });
+                
+                // Política adicional mais permissiva para desenvolvimento
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader();
+                });
+            });
+
+            builder.Services.AddRouting(options => 
+            {
+                options.LowercaseUrls = true;
             });
 
             builder.Services.AddControllers()
@@ -275,9 +295,6 @@ namespace ScanDrive.Api
 
             var app = builder.Build();
 
-            // Setup CORs
-            app.UseCors(corsPolicyName);
-
             // Configure the HTTP request pipeline.
             // Temporariamente habilitando Swagger em todos os ambientes
             app.UseSwagger();
@@ -287,7 +304,13 @@ namespace ScanDrive.Api
                 c.RoutePrefix = "swagger";
             });
 
+            // Setup CORS deve vir antes de outros middlewares
+            app.UseCors(corsPolicyName);
+
             app.UseHttpsRedirection();
+
+            // Adiciona suporte a arquivos estáticos
+            app.UseStaticFiles();
 
             // Adiciona middleware de autenticação antes da autorização
             app.UseAuthentication();
