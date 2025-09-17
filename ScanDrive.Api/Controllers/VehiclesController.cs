@@ -38,7 +38,10 @@ public class VehiclesController : BaseController
         : base(userManager, roleManager, context)
     {
         _environment = environment;
-        _uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "vehicles");
+        
+        // Configura o diretório de uploads, criando se necessário
+        var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        _uploadsFolder = Path.Combine(webRootPath, "uploads", "vehicles");
         
         // Garante que a pasta de uploads existe
         if (!Directory.Exists(_uploadsFolder))
